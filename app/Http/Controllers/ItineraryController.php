@@ -56,13 +56,18 @@ public function index()
         'duration'  => 'sometimes|integer|min:1',
         'image'     => 'sometimes|string|url'
     ]);
+
+    // If image uploaded as file
     if ($request->hasFile('image')) {
 
         if ($itinerary->image) {
             Storage::disk('public')->delete($itinerary->image);
         }
+
         $data['image'] = $request->file('image')->store('itineraries', 'public');
     }
+
+    // If image is URL from JSON
     if ($request->has('image') && !$request->hasFile('image')) {
         $data['image'] = $request->input('image');
     }
@@ -74,4 +79,21 @@ public function index()
 
 
 
+
+    public function destroy(string $id)
+    {
+        $itinerary = Itinerary::find($id);
+
+        if (!$itinerary) {
+            return response()->json(['error' => 'Record not found'], 404);
+        }
+
+        if ($itinerary->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $itinerary->delete();
+
+        return response()->json(['message' => 'Record deleted successfully']);
+    }
 }
