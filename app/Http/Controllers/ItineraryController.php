@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Storage;
 class ItineraryController extends Controller
 {
 
+public function index()
+{
+    return response()->json(['data' => Itinerary::all()]);
+}
    
 
     
