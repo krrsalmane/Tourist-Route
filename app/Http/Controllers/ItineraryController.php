@@ -35,7 +35,10 @@ public function index()
         ]);
         return response()->json(['data' => $itinerary], 201);
     }
-   
+    public function show(string $id)
+    {
+        return response()->json(['data' => Itinerary::find($id)]);
+    }
 
 
 
