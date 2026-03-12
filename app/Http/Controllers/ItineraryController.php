@@ -42,7 +42,35 @@ public function index()
 
 
 
-   
+    public function update(Request $request, string $id)
+  {
+    $itinerary = Itinerary::findOrFail($id);
+
+    if ($itinerary->user_id !== auth()->id()) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    $data = $request->validate([
+        'titre'     => 'sometimes|string|max:255',
+        'categorie' => 'sometimes|string|max:255',
+        'duration'  => 'sometimes|integer|min:1',
+        'image'     => 'sometimes|string|url'
+    ]);
+    if ($request->hasFile('image')) {
+
+        if ($itinerary->image) {
+            Storage::disk('public')->delete($itinerary->image);
+        }
+        $data['image'] = $request->file('image')->store('itineraries', 'public');
+    }
+    if ($request->has('image') && !$request->hasFile('image')) {
+        $data['image'] = $request->input('image');
+    }
+
+    $itinerary->update($data);
+
+    return response()->json(['data' => $itinerary]);
+}
 
 
 
