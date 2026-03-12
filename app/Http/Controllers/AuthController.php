@@ -7,11 +7,22 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User; 
+use OpenApi\Attributes as OA ;
+
+
 
 class AuthController extends Controller
 {
+
+#[OA\Post(path: '/api/register', summary: 'Register a new user')]
+    #[OA\Parameter(name: 'name', in: 'query', required: true, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'email', in: 'query', required: true, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'password', in: 'query', required: true, schema: new OA\Schema(type: 'string'))]
+    #[OA\Response(response: 201, description: 'User registered successfully')]
+
     public function register(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
@@ -51,5 +62,12 @@ class AuthController extends Controller
         ]);
     }
 
-   
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logged out successfully'
+        ]);
+    }
 }
